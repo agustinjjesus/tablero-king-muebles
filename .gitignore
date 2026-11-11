@@ -1,0 +1,5 @@
+privado/
+site/datos.json
+# mientras sea la versión de prueba no sube nada real, ni cifrado
+site/datos.enc.json
+node_modules/

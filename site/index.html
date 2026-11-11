@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Tablero King Muebles</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23141414'/%3E%3Crect x='9' y='9' width='14' height='14' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #f5f3ef; --panel: #ffffff; --tinta: #141414; --linea: #e4e0d9; --suave: #6e6a64; --claro: #a29d95;
+    --rojo: #b3261e; --barra: #141414; --barra-2: #cfcac2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0f0f0f; --panel: #1a1a1a; --tinta: #f5f3ef; --linea: #2e2d2b; --suave: #a29d95; --claro: #6e6a64;
+      --rojo: #ff8a80; --barra: #f5f3ef; --barra-2: #4a4845; }
+    .logo { filter: invert(1); }
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body { margin: 0; background: var(--bg); color: var(--tinta); font-family: Jost, "Century Gothic", system-ui, sans-serif; line-height: 1.45; }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 48px; display: flex; flex-direction: column; gap: 16px; }
+  header { display: flex; flex-direction: column; gap: 6px; padding-bottom: 8px; }
+  .logo { width: 150px; height: auto; display: block; }
+  h1 { font-size: clamp(1.6rem, 5vw, 2.2rem); font-weight: 500; margin: 6px 0 0; letter-spacing: .02em; text-transform: uppercase; }
+  h2 { font-size: .85rem; font-weight: 600; margin: 0; letter-spacing: .12em; text-transform: uppercase; }
+  .act { color: var(--suave); font-size: .9rem; margin: 0; }
+  .toma { margin: 6px 0 0; font-size: 1.1rem; max-width: 62ch; }
+  .tarjeta { background: var(--panel); border: 1px solid var(--linea); padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .nota { margin: 0; font-size: .88rem; color: var(--suave); max-width: 80ch; }
+  .numeros { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1px; background: var(--linea); border: 1px solid var(--linea); }
+  .num { background: var(--panel); padding: 16px; display: flex; flex-direction: column; gap: 2px; }
+  .num .l { font-size: .78rem; color: var(--suave); letter-spacing: .08em; text-transform: uppercase; }
+  .num .g { font-size: 1.9rem; font-weight: 500; line-height: 1.15; font-variant-numeric: tabular-nums; }
+  .num .s { font-size: .85rem; color: var(--suave); }
+  .num .s b { color: var(--tinta); font-weight: 600; }
+  .avisos { margin: 0; padding: 0; list-style: none; display: grid; gap: 1px; background: var(--linea); border: 1px solid var(--linea); }
+  .avisos li { background: var(--panel); padding: 12px 16px; display: flex; gap: 12px; align-items: baseline; }
+  .avisos li::before { content: ''; width: 8px; height: 8px; flex: none; background: var(--tinta); transform: translateY(-2px); }
+  .avisos li.mal { color: var(--rojo); }
+  .avisos li.mal::before { background: var(--rojo); }
+  .flujo { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--linea); }
+  .paso { padding: 14px; border-right: 1px solid var(--linea); display: flex; flex-direction: column; gap: 2px; }
+  .paso:last-child { border-right: 0; }
+  .paso .g { font-size: 1.7rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .paso .l { font-size: .78rem; color: var(--suave); letter-spacing: .08em; text-transform: uppercase; }
+  .paso .s { font-size: .82rem; color: var(--suave); }
+  .scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; font-variant-numeric: tabular-nums; }
+  th { text-align: left; font-weight: 500; font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--suave); padding: 6px 10px; border-bottom: 1px solid var(--tinta); white-space: nowrap; }
+  td { text-align: left; padding: 10px; border-bottom: 1px solid var(--linea); vertical-align: top; }
+  th.n, td.n { text-align: right; white-space: nowrap; }
+  td .sub { display: block; color: var(--suave); font-size: .82rem; }
+  tr.mal td:first-child, tr.mal td:first-child .sub { color: var(--rojo); }
+  .dos { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .bloque h3 { font-size: .78rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--suave); margin: 0 0 8px; }
+  .bloque + .bloque { margin-top: 16px; }
+  .fila { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 6px 0; }
+  .fila .v { font-variant-numeric: tabular-nums; color: var(--suave); white-space: nowrap; }
+  .fila .v b { color: var(--tinta); font-weight: 600; }
+  .fila .b { grid-column: 1 / -1; height: 6px; background: var(--barra-2); }
+  .fila .b i { display: block; height: 100%; background: var(--barra); }
+  .mes-tit { font-size: 1.05rem; font-weight: 500; margin: 0 0 4px; }
+  .grafico svg { width: 100%; height: auto; display: block; }
+  .grafico text { font-family: Jost, "Century Gothic", system-ui, sans-serif; fill: var(--suave); }
+  .grafico .t { fill: var(--tinta); font-weight: 600; }
+  .vacio { border: 1px dashed var(--claro); padding: 16px; color: var(--suave); font-size: .92rem; }
+  .vacio b { color: var(--tinta); }
+  ol.pasos { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 80ch; }
+  .pie { color: var(--suave); font-size: .8rem; margin: 8px 0 0; }
+  .franja { background: var(--tinta); color: var(--panel); font-size: .85rem; text-align: center; padding: 8px 16px; letter-spacing: .02em; }
+  .franja[hidden] { display: none; }
+  .sem { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; font-weight: 500; }
+  .sem::before { content: ''; width: 10px; height: 10px; flex: none; }
+  .sem.mas::before { background: #1e7a46; } .sem.mantener::before { background: var(--claro); } .sem.apagar::before { background: var(--rojo); }
+  .sem.apagar { color: var(--rojo); }
+  .error { padding: 14px; border: 1px solid var(--rojo); color: var(--rojo); background: var(--panel); }
+  .pin { position: fixed; inset: 0; display: grid; justify-items: center; align-items: center; background: var(--bg); padding: 16px; z-index: 10; }
+  .pin[hidden] { display: none; }
+  .pin-caja { width: min(340px, 100%); background: var(--panel); border: 1px solid var(--linea); padding: 26px 22px; display: flex; flex-direction: column; gap: 14px; text-align: center; align-items: stretch; }
+  .pin-caja .logo { margin: 0 auto; }
+  .pin-caja h1 { font-size: 1.2rem; margin: 0; }
+  .pin-caja input[type="password"] { font: inherit; font-size: 1.4rem; letter-spacing: .2em; text-align: center; padding: 10px; border: 1px solid var(--linea); background: var(--bg); color: var(--tinta); width: 100%; min-width: 0; border-radius: 0; }
+  .pin-caja .rec { font-size: .9rem; color: var(--suave); display: flex; gap: 8px; align-items: center; justify-content: center; }
+  .pin-caja button { font: inherit; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; padding: 12px; border: 0; background: var(--tinta); color: var(--panel); cursor: pointer; border-radius: 0; }
+  .pin-msg { margin: 0; min-height: 1.2em; color: var(--rojo); font-size: .9rem; }
+  @media (max-width: 760px) {
+    main { padding-top: 16px; }
+    .numeros { grid-template-columns: repeat(2, 1fr); }
+    .num { padding: 12px; } .num .g { font-size: 1.4rem; }
+    .flujo { grid-template-columns: repeat(2, 1fr); }
+    .paso:nth-child(2) { border-right: 0; }
+    .paso:nth-child(-n+2) { border-bottom: 1px solid var(--linea); }
+    .tarjeta { padding: 16px; }
+    table.entregas thead { display: none; }
+    table.entregas, table.entregas tbody, table.entregas tr, table.entregas td { display: block; }
+    table.entregas tr { border-bottom: 1px solid var(--linea); padding: 10px 0; display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; }
+    table.entregas td { border: 0; padding: 0; }
+    table.entregas td.n { text-align: right; }
+    table.fichas thead { display: none; }
+    table.fichas, table.fichas tbody, table.fichas tr, table.fichas td { display: block; }
+    table.fichas tr { border-bottom: 1px solid var(--linea); padding: 10px 0; }
+    table.fichas td { border: 0; padding: 3px 0; display: flex; justify-content: space-between; gap: 12px; text-align: right; }
+    table.fichas td::before { content: attr(data-l); color: var(--suave); text-align: left; }
+    table.fichas td:first-child { display: block; text-align: left; font-weight: 600; font-size: 1.02rem; padding-bottom: 4px; }
+    table.fichas td:first-child::before { content: ''; }
+  }
+  table.fichas td:first-child { min-width: 12rem; }
+</style>
+</head>
+<body>
+<div id="pin" class="pin">
+  <form id="pin-form" class="pin-caja" autocomplete="off">
+    <img class="logo" src="logo.png" alt="King Muebles">
+    <h1>Tablero</h1>
+    <p class="nota">Ingresá la clave.</p>
+    <input id="pin-in" type="password" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Clave">
+    <label class="rec"><input id="pin-rec" type="checkbox" checked> Recordar en este dispositivo</label>
+    <button type="submit">Entrar</button>
+    <p class="pin-msg" id="pin-msg" role="alert"></p>
+  </form>
+</div>
+
+<div class="franja" id="franja" hidden>Versión de prueba · todos los números son inventados</div>
+<main id="raiz" hidden>
+  <header>
+    <img class="logo" src="logo.png" alt="King Muebles">
+    <h1>Tablero</h1>
+    <p class="act" id="act"></p>
+    <p class="toma" id="toma"></p>
+  </header>
+
+  <ul class="avisos" id="avisos" hidden></ul>
+
+  <section class="tarjeta">
+    <h2 id="mes-tit">Este mes</h2>
+    <div class="numeros" id="mes"></div>
+    <p class="nota" id="mes-nota"></p>
+  </section>
+
+  <section class="tarjeta">
+    <h2>Plata por cobrar</h2>
+    <div class="numeros" id="plata"></div>
+  </section>
+
+  <section class="tarjeta">
+    <h2>Taller</h2>
+    <div class="flujo" id="flujo"></div>
+  </section>
+
+  <section class="tarjeta">
+    <h2>Próximas entregas</h2>
+    <p class="nota">Los pedidos que todavía no se entregaron, por fecha de entrega. El número es el del panel.</p>
+    <div class="scroll">
+      <table class="entregas">
+        <thead><tr><th>Entrega</th><th>Pedido</th><th>Estado</th><th class="n">Falta cobrar</th></tr></thead>
+        <tbody id="entregas"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="tarjeta">
+    <h2>Semana por semana</h2>
+    <p class="nota">Lo vendido cada semana (lunes a domingo, según la fecha del pedido). Arriba de cada barra, cuántos pedidos.</p>
+    <div class="grafico" id="semanas"></div>
+  </section>
+
+  <section class="tarjeta">
+    <h2>Qué se vende</h2>
+    <div class="dos" id="vende"></div>
+  </section>
+
+  <section class="tarjeta">
+    <h2>De dónde vienen las ventas</h2>
+    <div class="dos" id="origen"></div>
+  </section>
+
+  <section class="tarjeta">
+    <h2>Anuncios</h2>
+    <p class="nota">Lo que se gasta en Meta (Instagram y Facebook) al lado de lo que se vende: qué anuncio trae consultas y ventas, y cuál conviene apagar.</p>
+    <div class="vacio" id="anuncios-vacio">
+      <b>Todavía no está conectado.</b> Cuando esté, acá se ve por cada anuncio: cuánto se gastó, cuántas personas
+      escribieron por WhatsApp o Instagram, cuánto costó cada consulta, cuántas ventas del panel trajo y un semáforo:
+      apagar, mantener o poner más plata.
+    </div>
+    <div id="anuncios" hidden>
+      <div class="numeros" id="anuncios-num"></div>
+      <div class="scroll" style="margin-top:14px">
+        <table class="fichas">
+          <thead><tr><th>Anuncio</th><th class="n">Gasto</th><th class="n">Consultas</th><th class="n">$ por consulta</th><th class="n">Ventas</th><th class="n">$ por venta</th><th>Qué hacer</th></tr></thead>
+          <tbody id="anuncios-filas"></tbody>
+        </table>
+      </div>
+      <p class="nota" style="margin-top:10px">Poner más plata: cada venta costó menos de $40.000 en anuncios. Apagar: no trajo ventas o cada venta costó más de $100.000. Mantener: lo demás. Las ventas son las del panel marcadas con ese anuncio.</p>
+    </div>
+    <p class="nota" id="anuncios-pasos-tit">Para conectarlo hace falta:</p>
+    <ol class="pasos">
+      <li>Acceso de solo lectura (analista) a la cuenta publicitaria de King Muebles en Meta Business.</li>
+      <li>En el panel, al cargar un pedido, marcar si el cliente vino por un anuncio.</li>
+    </ol>
+  </section>
+
+  <p class="pie" id="pie"></p>
+</main>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const pesos = (n) => '$' + Math.round(n).toLocaleString('es-AR');
+  const millones = (n) => '$' + (n / 1e6).toLocaleString('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' M';
+  const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  const mesDe = (clave) => MESES[Number(clave.slice(5, 7)) - 1];
+  const ddmm = (f) => f ? f.slice(8, 10) + '/' + f.slice(5, 7) : '';
+  const hoyAr = () => new Date(Date.now() - 3 * 3600 * 1000).toISOString().slice(0, 10);
+  const dias = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
+  const plural = (n, s, p) => n + ' ' + (n === 1 ? s : (p || s + 's'));
+
+  const EN_CURSO = ['Presupuesto', 'Señado', 'En fabricación', 'Listo'];
+  const total = (p) => p.precio + p.flete;
+  const vale = (p) => p.estado !== 'Cancelado' && p.estado !== 'Presupuesto';
+  const saldo = (p) => (p.saldoCobrado || p.estado === 'Cancelado') ? 0 : Math.max(0, total(p) - p.sena);
+  const suma = (l, f) => l.reduce((s, p) => s + f(p), 0);
+  function contar(lista, clave, valor) {
+    const o = {};
+    lista.forEach((p) => { const k = clave(p); o[k] = o[k] || { n: 0, v: 0 }; o[k].n++; o[k].v += valor ? valor(p) : 0; });
+    return Object.entries(o).sort((a, b) => b[1].n - a[1].n || b[1].v - a[1].v);
+  }
+  function filas(lista, conPlata) {
+    const max = Math.max(1, ...lista.map(([, x]) => conPlata ? x.v : x.n));
+    const caja = el('div');
+    lista.forEach(([k, x]) => {
+      const f = el('div', 'fila');
+      f.append(el('span', null, k));
+      const v = el('span', 'v');
+      v.innerHTML = conPlata ? `<b>${pesos(x.v)}</b> · ${plural(x.n, 'pedido')}` : `<b>${x.n}</b>`;
+      f.append(v);
+      const b = el('span', 'b'); const i = el('i'); i.style.width = Math.round((conPlata ? x.v : x.n) / max * 100) + '%'; b.append(i); f.append(b);
+      caja.append(f);
+    });
+    return caja;
+  }
+  function bloque(tit, cont) { const b = el('div', 'bloque'); b.append(el('h3', null, tit), cont); return b; }
+  function num(l, g, s) {
+    const d = el('div', 'num'); d.append(el('span', 'l', l), el('span', 'g', g));
+    if (s) { const x = el('span', 's'); x.innerHTML = s; d.append(x); }
+    return d;
+  }
+
+  function mostrar(d) {
+    const P = d.pedidos;
+    const hoy = hoyAr();
+    const mes = hoy.slice(0, 7);
+    const ant = (() => { const [a, m] = mes.split('-').map(Number); return m === 1 ? `${a - 1}-12` : `${a}-${String(m - 1).padStart(2, '0')}`; })();
+    const delMes = P.filter((p) => vale(p) && p.fecha.startsWith(mes));
+    const delAnt = P.filter((p) => vale(p) && p.fecha.startsWith(ant));
+    const curso = P.filter((p) => EN_CURSO.includes(p.estado) && p.estado !== 'Presupuesto');
+    const vendido = suma(delMes, total), vendidoAnt = suma(delAnt, total);
+    const diaHoy = Number(hoy.slice(8, 10));
+    const diasMes = new Date(Number(mes.slice(0, 4)), Number(mes.slice(5, 7)), 0).getDate();
+    const ultimo = P.map((p) => p.creado.slice(0, 10)).sort().pop();
+    const sinCargar = ultimo ? dias(ultimo, hoy) : 0;
+
+    // encabezado
+    const gen = new Date(d.generado);
+    $('franja').hidden = !d.demo;
+    $('act').textContent = d.demo ? 'Así se ve con los pedidos del panel. Estos son de ejemplo.' : 'Datos del panel al ' + gen.toLocaleDateString('es-AR', { day: 'numeric', month: 'long' }) + ', ' +
+      gen.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false }) + ' h';
+    const atrasadas = curso.filter((p) => p.entrega && p.entrega < hoy).sort((a, b) => a.entrega < b.entrega ? -1 : 1);
+    $('toma').textContent = `${mesDe(mes)[0].toUpperCase() + mesDe(mes).slice(1)} lleva ${plural(delMes.length, 'pedido')} y ${millones(vendido)} vendidos en ${plural(diaHoy, 'día')}. ` +
+      `Hay ${plural(curso.length, 'pedido')} sin entregar, con ${millones(suma(curso, saldo))} por cobrar` +
+      (atrasadas.length ? ` y ${plural(atrasadas.length, 'entrega atrasada', 'entregas atrasadas')}.` : '.');
+
+    // avisos
+    const av = [];
+    atrasadas.forEach((p) => av.push(['mal', `Pedido ${p.id}: la entrega era el ${ddmm(p.entrega)} y figura "${p.estado}". ¿Ya se entregó?`]));
+    const listos = curso.filter((p) => p.estado === 'Listo');
+    const listosAlDia = listos.filter((p) => !atrasadas.includes(p));
+    if (listosAlDia.length) av.push(['', `${plural(listosAlDia.length, 'pedido listo', 'pedidos listos')} para entregar: ${listosAlDia.map((p) => p.id).join(', ')}.`]);
+    const sinFecha = curso.filter((p) => !p.entrega);
+    if (sinFecha.length) av.push(['', `${plural(sinFecha.length, 'pedido')} sin fecha de entrega: ${sinFecha.map((p) => p.id).join(', ')}.`]);
+    if (sinCargar >= 3) av.push(['mal', `Hace ${plural(sinCargar, 'día')} que no se carga un pedido nuevo (el último, el ${ddmm(ultimo)}). Si hubo ventas, falta cargarlas.`]);
+    const sinTildar = P.filter((p) => p.estado === 'Entregado' && !p.saldoCobrado && total(p) - p.sena > 0);
+    if (sinTildar.length) av.push(['', `${plural(sinTildar.length, 'pedido entregado', 'pedidos entregados')} sin tildar "saldo cobrado" en el panel (${pesos(suma(sinTildar, (p) => total(p) - p.sena))}). Si ya se cobraron, falta marcarlo.`]);
+    $('avisos').replaceChildren(...av.map(([c, t]) => el('li', c, t)));
+    $('avisos').hidden = !av.length;
+
+    // este mes
+    $('mes-tit').textContent = 'Este mes: ' + mesDe(mes);
+    const ritmo = diaHoy >= 5 ? vendido / diaHoy * diasMes : null;
+    const Ant = mesDe(ant)[0].toUpperCase() + mesDe(ant).slice(1);
+    $('mes').replaceChildren(
+      num('Vendido', pesos(vendido), `${Ant} entero: <b>${millones(vendidoAnt)}</b>`),
+      num('Pedidos', String(delMes.length), `${Ant} entero: <b>${delAnt.length}</b>`),
+      num('Ticket promedio', delMes.length ? pesos(vendido / delMes.length) : '–', delAnt.length ? `En ${mesDe(ant)}: <b>${pesos(vendidoAnt / delAnt.length)}</b>` : ''),
+      num('Si sigue así', ritmo ? millones(ritmo) : '–', ritmo ? `Estimado a fin de ${mesDe(mes)}, al ritmo de estos ${diaHoy} días` : 'Se calcula desde el día 5'),
+    );
+    $('mes-nota').textContent = 'Vendido = precio + flete, como en el panel. No cuenta presupuestos ni cancelados.' +
+      (!d.demo && ant === '2026-10' ? ' El panel se usa desde el 19/10: lo de octubre anterior a esa fecha se cargó después y puede estar incompleto.' : '');
+
+    // plata
+    $('plata').replaceChildren(
+      num('Por cobrar', pesos(suma(curso, saldo)), `De ${plural(curso.length, 'pedido')} sin entregar`),
+      num('Listos para entregar', pesos(suma(listos, saldo)), plural(listos.length, 'pedido')),
+      num('Entregados sin tildar', pesos(suma(sinTildar, (p) => total(p) - p.sena)), `${plural(sinTildar.length, 'pedido')}: falta marcar "saldo cobrado"`),
+      num('Señas de ' + mesDe(mes), pesos(suma(delMes, (p) => p.sena)), `De ${plural(delMes.length, 'pedido')}`),
+    );
+
+    // taller
+    const entregadosMes = P.filter((p) => p.estado === 'Entregado' && p.fecha.startsWith(mes)).length;
+    const paso = (l, n, s) => { const x = el('div', 'paso'); x.append(el('span', 'l', l), el('span', 'g', String(n)), el('span', 's', s)); return x; };
+    $('flujo').replaceChildren(
+      paso('Señados', curso.filter((p) => p.estado === 'Señado').length, 'por empezar'),
+      paso('En fabricación', curso.filter((p) => p.estado === 'En fabricación').length, 'en el taller'),
+      paso('Listos', listos.length, 'para entregar'),
+      paso('Entregados', entregadosMes, 'de los pedidos de ' + mesDe(mes)),
+    );
+
+    // próximas entregas
+    const orden = [...curso].sort((a, b) => (a.entrega || '9999') < (b.entrega || '9999') ? -1 : (a.entrega || '9999') > (b.entrega || '9999') ? 1 : a.id - b.id);
+    $('entregas').replaceChildren(...orden.map((p) => {
+      const tr = el('tr', p.entrega && p.entrega < hoy ? 'mal' : '');
+      const cuando = !p.entrega ? 'Sin fecha' : ddmm(p.entrega);
+      const falta = !p.entrega ? '' : p.entrega < hoy ? 'atrasada ' + plural(dias(p.entrega, hoy), 'día') : p.entrega === hoy ? 'hoy' : 'en ' + plural(dias(hoy, p.entrega), 'día');
+      tr.innerHTML = `<td>${esc(cuando)}<span class="sub">${esc(falta)}</span></td>` +
+        `<td>Nº ${p.id} · ${esc(p.producto)} ${esc(p.medida)}<span class="sub">${esc(p.color)} · ${esc(p.localidad)}</span></td>` +
+        `<td>${esc(p.estado)}<span class="sub">${esc(p.canal)}</span></td>` +
+        `<td class="n">${pesos(saldo(p))}</td>`;
+      return tr;
+    }));
+
+    // semana por semana
+    const lunes = (f) => { const t = new Date(f + 'T12:00:00Z'); t.setUTCDate(t.getUTCDate() - ((t.getUTCDay() + 6) % 7)); return t.toISOString().slice(0, 10); };
+    const validos = P.filter(vale);
+    const sem = {};
+    let s0 = lunes(validos.map((p) => p.fecha).sort()[0] || hoy);
+    for (let s = s0; s <= lunes(hoy); s = new Date(Date.parse(s + 'T12:00:00Z') + 7 * 86400000).toISOString().slice(0, 10)) sem[s] = { n: 0, v: 0 };
+    validos.forEach((p) => { const k = lunes(p.fecha); if (sem[k]) { sem[k].n++; sem[k].v += total(p); } });
+    const ks = Object.keys(sem);
+    const W = 720, H = 260, M = 28, base = H - 34, alto = base - 34;
+    const maxV = Math.max(1, ...ks.map((k) => sem[k].v));
+    const paso2 = (W - M * 2) / ks.length, ancho = Math.min(56, paso2 * 0.62);
+    let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ventas por semana">` +
+      `<line x1="${M}" y1="${base}" x2="${W - M}" y2="${base}" stroke="var(--linea)" stroke-width="1"/>`;
+    ks.forEach((k, i) => {
+      const x = M + paso2 * i + (paso2 - ancho) / 2, h = sem[k].v / maxV * alto, y = base - h;
+      const actual = k === lunes(hoy);
+      svg += `<rect x="${x}" y="${y}" width="${ancho}" height="${h}" fill="${actual ? 'var(--barra-2)' : 'var(--barra)'}"${actual ? ' stroke="var(--barra)" stroke-dasharray="4 3"' : ''}/>`;
+      if (sem[k].n) svg += `<text class="t" x="${x + ancho / 2}" y="${y - 8}" text-anchor="middle" font-size="14">${sem[k].n}</text>`;
+      svg += `<text x="${x + ancho / 2}" y="${base + 18}" text-anchor="middle" font-size="12">${ddmm(k)}${actual ? '*' : ''}</text>`;
+      if (sem[k].v) svg += `<text x="${x + ancho / 2}" y="${base + 31}" text-anchor="middle" font-size="11">${(sem[k].v / 1e6).toLocaleString('es-AR', { maximumFractionDigits: 1 })} M</text>`;
+    });
+    svg += '</svg>';
+    $('semanas').innerHTML = svg + `<p class="nota">* La semana en curso. Debajo de cada barra, el lunes de esa semana y los millones vendidos.</p>`;
+
+    // qué se vende: el mes anterior y este
+    const vende = [[ant, delAnt], [mes, delMes]].map(([k, l]) => {
+      const c = el('div');
+      c.append(el('p', 'mes-tit', mesDe(k)[0].toUpperCase() + mesDe(k).slice(1) + ' · ' + plural(l.length, 'pedido')));
+      c.append(bloque('Producto', filas(contar(l, (p) => p.producto, total), true)));
+      c.append(bloque('Medida', filas(contar(l, (p) => p.medida))));
+      const blancas = l.filter((p) => p.color === 'Blanco').length;
+      c.append(bloque(`Color · ${blancas} blancas y ${l.length - blancas} en color`, filas(contar(l, (p) => p.color))));
+      return c;
+    });
+    $('vende').replaceChildren(...vende);
+
+    // de dónde vienen
+    const canal = (p) => p.canal + (p.atendio && p.atendio !== 'Sin asignar' ? ' · ' + p.atendio : '');
+    const o1 = el('div');
+    [[ant, delAnt], [mes, delMes]].forEach(([k, l]) => o1.append(bloque('Por dónde escribió · ' + mesDe(k), filas(contar(l, canal, total), true))));
+    const o2 = el('div');
+    o2.append(bloque('Zona · todos los pedidos', filas(contar(validos, (p) => p.zona))));
+    o2.append(bloque('Localidad · las que más compran', filas(contar(validos, (p) => p.localidad).slice(0, 8))));
+    $('origen').replaceChildren(o1, o2);
+
+    $('pie').textContent = d.demo
+      ? 'En la versión de verdad, los números salen solos del panel de pedidos que ya usan, se actualizan cada pocos minutos y la página entra con clave. No muestra nombres, teléfonos ni direcciones de los clientes.'
+      : `Sale del panel de pedidos (${P.length} pedidos cargados). El tablero no muestra nombres, teléfonos ni direcciones de los clientes.`;
+
+    // anuncios: gasto y consultas de Meta; las ventas, las del panel marcadas con cada anuncio
+    const A = d.anuncios && d.anuncios.filas && d.anuncios.filas.length ? d.anuncios.filas : null;
+    $('anuncios').hidden = !A; $('anuncios-vacio').hidden = !!A;
+    if (A) {
+      const porAnuncio = {};
+      delMes.filter((p) => p.anuncio).forEach((p) => { const x = porAnuncio[p.anuncio] = porAnuncio[p.anuncio] || { n: 0, v: 0 }; x.n++; x.v += total(p); });
+      const gasto = A.reduce((s, a) => s + a.gasto, 0), consultas = A.reduce((s, a) => s + a.consultas, 0);
+      const vtas = Object.values(porAnuncio).reduce((s, x) => s + x.n, 0), vendidoAd = Object.values(porAnuncio).reduce((s, x) => s + x.v, 0);
+      $('anuncios-num').replaceChildren(
+        num('Gasto del mes', pesos(gasto), plural(A.length, 'anuncio') + ' andando'),
+        num('Consultas', String(consultas), consultas ? `<b>${pesos(gasto / consultas)}</b> cada una` : ''),
+        num('Ventas por anuncios', String(vtas), `<b>${pesos(vendidoAd)}</b> vendidos`),
+        num('Por cada $1 en anuncios', vtas ? pesos(vendidoAd / gasto) : '–', 'vendidos'),
+      );
+      const qh = (a, x) => {
+        if (!x || !x.n) return a.gasto >= 60000 ? ['apagar', 'Apagar'] : ['mantener', 'Esperar'];
+        const c = a.gasto / x.n;
+        return c < 40000 ? ['mas', 'Poner más plata'] : c > 100000 ? ['apagar', 'Apagar'] : ['mantener', 'Mantener'];
+      };
+      $('anuncios-filas').replaceChildren(...A.map((a) => {
+        const x = porAnuncio[a.anuncio], [cl, txt] = qh(a, x);
+        const tr = el('tr');
+        tr.innerHTML = `<td>${esc(a.anuncio)}</td><td class="n" data-l="Gasto">${pesos(a.gasto)}</td><td class="n" data-l="Consultas">${a.consultas}</td>` +
+          `<td class="n" data-l="$ por consulta">${a.consultas ? pesos(a.gasto / a.consultas) : '–'}</td><td class="n" data-l="Ventas">${x ? x.n : 0}</td>` +
+          `<td class="n" data-l="$ por venta">${x && x.n ? pesos(a.gasto / x.n) : '–'}</td><td data-l="Qué hacer"><span class="sem ${cl}">${txt}</span></td>`;
+        return tr;
+      }));
+      $('anuncios-pasos-tit').textContent = 'Para tenerlo con los anuncios de verdad hace falta:';
+    }
+  }
+
+  // ── Clave: los números se publican cifrados (datos.enc.json); sin la clave no se pueden leer ──
+  // AES-256-GCM con clave derivada por PBKDF2, como el Tablero Biotina (acá con una clave de 10 caracteres, no un PIN).
+  const CLAVE_PIN = 'tablero_king_pin';
+  let pinActual = null;
+  const pinGuardado = () => { try { return localStorage.getItem(CLAVE_PIN) || sessionStorage.getItem(CLAVE_PIN); } catch (e) { return null; } };
+  const pinGuardar = (pin, recordar) => { try { (recordar ? localStorage : sessionStorage).setItem(CLAVE_PIN, pin); } catch (e) { /* sin almacenamiento */ } };
+  const pinOlvidar = () => { try { localStorage.removeItem(CLAVE_PIN); sessionStorage.removeItem(CLAVE_PIN); } catch (e) { /* nada */ } };
+  const deB64 = (s) => Uint8Array.from(atob(s), (ch) => ch.charCodeAt(0));
+  async function descifrar(sobre, pin) {
+    const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveKey']);
+    const clave = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: deB64(sobre.salt), iterations: sobre.iter, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+    const claro = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: deB64(sobre.iv) }, clave, deB64(sobre.data));
+    return JSON.parse(new TextDecoder().decode(claro));
+  }
+  function pedirPin(mensaje) {
+    $('raiz').hidden = true; $('pin').hidden = false;
+    $('pin-msg').textContent = mensaje || ''; $('pin-in').value = ''; $('pin-in').focus();
+  }
+  async function cargar() {
+    try {
+      const r = await fetch('datos.demo.json?v=' + Date.now(), { cache: 'no-store' });
+      if (r.ok) {
+        const d = await r.json();
+        // la prueba se arma un día y se mira otro: se corren las fechas para que "hoy" sea siempre el último día
+        const corrida = dias(new Date(Date.parse(d.generado) - 3 * 3600 * 1000).toISOString().slice(0, 10), hoyAr());
+        const correr = (f) => f ? new Date(Date.parse(f.slice(0, 10) + 'T12:00:00Z') + corrida * 86400000).toISOString().slice(0, 10) + f.slice(10) : f;
+        if (corrida) d.pedidos.forEach((p) => { ['fecha', 'entrega', 'creado', 'actualizado'].forEach((k) => { p[k] = correr(p[k]); }); });
+        $('pin').hidden = true; $('raiz').hidden = false; mostrar(d); return;
+      }
+    } catch (e) { /* no hay prueba: sigue con los datos cifrados */ }
+    let sobre;
+    try {
+      const r = await fetch('datos.enc.json?v=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      sobre = await r.json();
+    } catch (e) {
+      $('pin').hidden = true; $('raiz').hidden = false;
+      document.querySelectorAll('.error').forEach((x) => x.remove());
+      $('raiz').prepend(el('div', 'error', 'No se pudieron cargar los números (' + e.message + ').'));
+      return;
+    }
+    if (!(window.crypto && crypto.subtle)) { pedirPin('Este navegador no puede abrir la página. Probá con otro.'); return; }
+    const pin = pinActual || pinGuardado();
+    if (!pin) { pedirPin(''); return; }
+    let d;
+    try { d = await descifrar(sobre, pin); } catch (e) { pinActual = null; pinOlvidar(); pedirPin('Clave incorrecta.'); return; }
+    pinActual = pin;
+    $('pin').hidden = true; $('raiz').hidden = false;
+    document.querySelectorAll('.error').forEach((x) => x.remove());
+    mostrar(d);
+  }
+  $('pin-form').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const p = $('pin-in').value.trim().toLowerCase();
+    if (p.length < 10) { $('pin-msg').textContent = 'La clave tiene 10 letras y números.'; return; }
+    pinActual = p;
+    $('pin-msg').textContent = 'Abriendo…';
+    cargar().then(() => { if (pinActual) pinGuardar(p, $('pin-rec').checked); });
+  });
+  cargar();
+  setInterval(cargar, 120000);
+})();
+</script>
+</body>
+</html>
